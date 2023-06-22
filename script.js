@@ -51,6 +51,7 @@ function renderTasks() {
 
     // Create table row and cells
     const row = document.createElement('tr');
+    row.dataset.index = i; // Set dataset index for reordering
     const taskCell = document.createElement('td');
     const deleteCell = document.createElement('td');
     const deleteButton = document.createElement('button');
@@ -106,8 +107,20 @@ function dragOver(e) {
 
 // Function to handle drag end event
 function dragEnd(e) {
-  e.target.classList.remove('dragging');
-  updateTasksOrder();
+  e.target.parentNode.classList.remove('drag-over');
+
+  const targetIndex = parseInt(e.target.parentNode.dataset.index);
+  const isLastRow = targetIndex === tasks.length - 1;
+
+  if (isLastRow && draggedIndex !== null) {
+    const taskToMove = tasks[draggedIndex];
+    tasks.splice(draggedIndex, 1);
+    tasks.splice(targetIndex, 0, taskToMove);
+    renderTasks();
+    saveTasks();
+  }
+
+  draggedIndex = null;
 }
 
 // Function to update the tasks array after reordering
